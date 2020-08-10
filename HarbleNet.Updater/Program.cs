@@ -16,6 +16,7 @@ namespace HarbleNet.Updater
     {
         static HttpClient httpClient = new HttpClient();
         static string[] hashConfig;
+        static string basedir = "/var/www/sites/api.harble.net";
 
         static void Main(string[] args)
         {
@@ -71,14 +72,14 @@ namespace HarbleNet.Updater
                 history.Add(new HistoryInfo() { Hotel = hotel, Revision = revision, LastChecked = DateTime.UtcNow });
             }
 
-            File.WriteAllText("/var/www/sites/api.harble.net/last.json", JsonConvert.SerializeObject(history));
+            File.WriteAllText($"{basedir}/last.json", JsonConvert.SerializeObject(history));
 
             var incomingHashesWithNames = LoadHashesWithName("Incoming");
             var outgoingHashesWithNames = LoadHashesWithName("Outgoing");
 
             foreach (var revision in revisions)
             {
-                if (File.Exists($"/var/www/sites/api.harble.net/revisions/{revision}.json"))
+                if (File.Exists($"{basedir}/revisions/{revision}.json"))
                 {
                     Console.WriteLine($"[Updater] Already fetched {revision}");
                     continue;
@@ -114,7 +115,7 @@ namespace HarbleNet.Updater
                 }
 
                 string json = JsonConvert.SerializeObject(revisionInfo);
-                File.WriteAllText($"/var/www/sites/api.harble.net/revisions/{revision}.json", json);
+                File.WriteAllText($"{basedir}/revisions/{revision}.json", json);
             }
         }
 
