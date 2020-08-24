@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration.Ini;
 using Newtonsoft.Json;
 using Sulakore.Habbo;
+using Sulakore.Habbo.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -91,27 +92,27 @@ namespace HarbleNet.Updater
                 Console.WriteLine($"[Updater] Disassembling SWF");
                 game.Disassemble();
                 game.GenerateMessageHashes();
-                Console.WriteLine($"[Updater] Incoming messages: {game.InMessages.Count}");
-                Console.WriteLine($"[Updater] Outgoing messages: {game.OutMessages.Count}");
+                Console.WriteLine($"[Updater] Incoming messages: {game.In.Count}");
+                Console.WriteLine($"[Updater] Outgoing messages: {game.Out.Count}");
 
                 var revisionInfo = new RevisionInfo() { Tag = revision, FirstSeen = DateTime.UtcNow };
 
-                foreach (var message in game.InMessages)
+                foreach (var message in game.In)
                 {
                     string name = null;
-                    if (incomingHashesWithNames.ContainsKey(message.Value.Hash))
-                        name = incomingHashesWithNames[message.Value.Hash];
+                    if (incomingHashesWithNames.ContainsKey(message.Hash))
+                        name = incomingHashesWithNames[message.Hash];
 
-                    revisionInfo.IncomingMessages.Add(message.Key, new MessageInfo() { Hash = message.Value.Hash, Name = name });
+                    revisionInfo.IncomingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name });
                 }
 
-                foreach (var message in game.OutMessages)
+                foreach (var message in game.Out)
                 {
                     string name = null;
-                    if (outgoingHashesWithNames.ContainsKey(message.Value.Hash))
-                        name = outgoingHashesWithNames[message.Value.Hash];
+                    if (outgoingHashesWithNames.ContainsKey(message.Hash))
+                        name = outgoingHashesWithNames[message.Hash];
 
-                    revisionInfo.OutgoingMessages.Add(message.Key, new MessageInfo() { Hash = message.Value.Hash, Name = name });
+                    revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name });
                 }
 
                 string json = JsonConvert.SerializeObject(revisionInfo);
