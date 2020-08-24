@@ -64,7 +64,7 @@ namespace HarbleNet.Updater
             {
                 var variables = await GetVariablesAsync(hotel);
                 var client_url = GetClientUrl(variables);
-                var revision = new Regex("(PRODUCTION\\-\\d+\\-\\d+)").Match(client_url).Groups[1].Value;
+                var revision = new Regex("PRODUCTION\\-\\d+\\-\\d+").Match(client_url).Value;
                 Console.WriteLine($"[Updater] Habbo{hotel} : {revision}");
 
                 if (!revisions.Contains(revision))
