@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HarbleNet.Updater", "HarbleNet.Updater\HarbleNet.Updater.csproj", "{7596581E-4531-489A-8461-6B35C7643CA0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sulakore", "Sulakore\Sulakore\Sulakore.csproj", "{91F58762-5A8F-4A0E-B162-A42749829674}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flazzy", "Sulakore\Submodules\Flazzy\Flazzy\Flazzy.csproj", "{DD4FDF9D-224A-4675-BC8B-8FBA1F275AF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{7596581E-4531-489A-8461-6B35C7643CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7596581E-4531-489A-8461-6B35C7643CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7596581E-4531-489A-8461-6B35C7643CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91F58762-5A8F-4A0E-B162-A42749829674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91F58762-5A8F-4A0E-B162-A42749829674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91F58762-5A8F-4A0E-B162-A42749829674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91F58762-5A8F-4A0E-B162-A42749829674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD4FDF9D-224A-4675-BC8B-8FBA1F275AF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD4FDF9D-224A-4675-BC8B-8FBA1F275AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD4FDF9D-224A-4675-BC8B-8FBA1F275AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD4FDF9D-224A-4675-BC8B-8FBA1F275AF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
