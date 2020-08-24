@@ -10,9 +10,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Flazzy\Flazzy.csproj" />
-    <ProjectReference Include="..\Sulakore\Sulakore.csproj" />
-  </ItemGroup>
-
 </Project>
