@@ -122,7 +122,7 @@ namespace HarbleNet.Updater
 
         static async Task<string[]> GetHashesAsync()
         {
-            HttpResponseMessage response = await httpClient.GetAsync("https://raw.githubusercontent.com/ArachisH/Tanji/master/Tanji/Hashes.ini");
+            HttpResponseMessage response = await httpClient.GetAsync("https://raw.githubusercontent.com/ArachisH/Sulakore/master/Sulakore/Hashes.ini");
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadAsStringAsync();
