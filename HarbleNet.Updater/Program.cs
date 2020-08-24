@@ -30,9 +30,9 @@ namespace HarbleNet.Updater
         {
             var namedHashes = new Dictionary<string, string>();
 
+            bool isInSection = false;
             foreach (var line in hashConfig)
             {
-                bool isInSection = false;
                 if (line.StartsWith("[") && line.EndsWith("]"))
                 {
                     isInSection = (line == ("[" + section + "]"));
