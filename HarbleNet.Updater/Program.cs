@@ -38,7 +38,7 @@ namespace HarbleNet.Updater
             MySqlConnection.Open();
             #endregion
 
-            GenerateResults().GetAwaiter().GetResult();
+            GenerateResults(args).GetAwaiter().GetResult();
         }
 
         static string list<T>(IEnumerable<T> enumerable) //https://stackoverflow.com/a/5695117
@@ -72,43 +72,19 @@ namespace HarbleNet.Updater
             return namedHashes;
         }
 
-        static async Task GenerateResults()
+        static async Task GenerateResults(string[] args)
         {
             var hotels = new string[] { ".com", ".fr", ".com.tr", ".nl", ".de", ".it", ".fi", ".es", ".com.br" };
-            var revisions = new List<string>();
-
-            Console.WriteLine($"[Updater] Checking revisions for hotels: [{string.Join(", ", hotels)}]");
-
-            var history = new List<HistoryInfo>();
-
-            foreach (var hotel in hotels)
-            {
-                var variables = await GetVariablesAsync(hotel);
-                var client_url = GetClientUrl(variables);
-                var revision = new Regex("PRODUCTION\\-\\d+\\-\\d+").Match(client_url).Value;
-                Console.WriteLine($"[Updater] Habbo{hotel} : {revision}");
-
-                if (!revisions.Contains(revision))
-                    revisions.Add(revision);
-
-                history.Add(new HistoryInfo() { Hotel = hotel, Revision = revision, LastChecked = DateTime.UtcNow });
-            }
-
-            File.WriteAllText($"{basedir}/last.json", JsonConvert.SerializeObject(history));
+            var files = new List<string>();
+            files = args.ToList();
 
             var incomingHashesWithNames = LoadHashesWithName("Incoming");
             var outgoingHashesWithNames = LoadHashesWithName("Outgoing");
 
-            foreach (var revision in revisions)
+            foreach (var file in files)
             {
-                if (File.Exists($"{basedir}/revisions/{revision}.json"))
-                {
-                    Console.WriteLine($"[Updater] Already fetched {revision}");
-                    continue;
-                }
-
-                var swfBytes = await GetClientSwfAsync(revision);
-                Console.WriteLine($"[Updater] Fetched {revision}, Size: {swfBytes.Length / 1024}mb");
+                var swfBytes = await File.ReadAllBytesAsync(file);
+                Console.WriteLine($"[Updater] Fetched {file}, Size: {swfBytes.Length / 1024}mb");
                 var game = new HGame(swfBytes);
                 Console.WriteLine($"[Updater] Disassembling SWF");
                 game.Disassemble();
@@ -116,7 +92,7 @@ namespace HarbleNet.Updater
                 Console.WriteLine($"[Updater] Incoming messages: {game.In.Count}");
                 Console.WriteLine($"[Updater] Outgoing messages: {game.Out.Count}");
 
-                var revisionInfo = new RevisionInfo() { Tag = revision, FirstSeen = DateTime.UtcNow };
+                var revisionInfo = new RevisionInfo() { Tag = game.Revision, FirstSeen = DateTime.UtcNow };
 
                 foreach (var message in game.In)
                 {
@@ -136,11 +112,11 @@ namespace HarbleNet.Updater
                     revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name });
                 }
 
-                revisionInfo.IncomingMessages.ToList().ForEach(x => insertSQL(revision, "In", x.Key, x.Value));
-                revisionInfo.OutgoingMessages.ToList().ForEach(x => insertSQL(revision, "Out", x.Key, x.Value));
+                revisionInfo.IncomingMessages.ToList().ForEach(x => insertSQL(game.Revision, "In", x.Key, x.Value));
+                revisionInfo.OutgoingMessages.ToList().ForEach(x => insertSQL(game.Revision, "Out", x.Key, x.Value));
 
                 string json = JsonConvert.SerializeObject(revisionInfo);
-                File.WriteAllText($"{basedir}/revisions/{revision}.json", json);
+                File.WriteAllText($"{basedir}/revisions/{game.Revision}.json", json);
             }
         }
 
