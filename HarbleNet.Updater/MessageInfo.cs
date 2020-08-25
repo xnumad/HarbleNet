@@ -8,5 +8,10 @@ namespace HarbleNet.Updater
     {
         public string Hash { get; set; }
         public string Name { get; set; }
+        public string Structure { get; set; }
+        public string ClassName { get; set; }
+        public string ClassNamespace { get; set; }
+        public string ParserName { get; set; }
+        public string ParserNamespace { get; set; }
     }
 }

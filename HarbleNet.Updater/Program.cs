@@ -103,7 +103,7 @@ namespace HarbleNet.Updater
                     if (incomingHashesWithNames.ContainsKey(message.Hash))
                         name = incomingHashesWithNames[message.Hash];
 
-                    revisionInfo.IncomingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name });
+                    revisionInfo.IncomingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name, ParserName = message.ParserName, ParserNamespace = message.Parser.QName.Namespace.Name });
                 }
 
                 foreach (var message in game.Out)
@@ -112,7 +112,7 @@ namespace HarbleNet.Updater
                     if (outgoingHashesWithNames.ContainsKey(message.Hash))
                         name = outgoingHashesWithNames[message.Hash];
 
-                    revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name });
+                    revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name });
                 }
 
                 string json = JsonConvert.SerializeObject(revisionInfo);
