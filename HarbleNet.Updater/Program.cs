@@ -1,11 +1,13 @@
 ﻿using Flazzy;
 using Microsoft.Extensions.Configuration.Ini;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Sulakore.Habbo;
 using Sulakore.Habbo.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -18,12 +20,31 @@ namespace HarbleNet.Updater
         static HttpClient httpClient = new HttpClient();
         static string[] hashConfig;
         static string basedir = "/var/www/sites/api.harble.net";
+        static MySqlConnection MySqlConnection;
 
         static void Main(string[] args)
         {
             hashConfig = GetHashesAsync().GetAwaiter().GetResult();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
+
+            #region MySql
+            string connString = "";
+            connString += "Server=192.168.178.67;";
+            connString += "Port=3306;";
+            connString += "Uid=root;";
+            connString += "password=123456;";
+            connString += "Database=habbo-hashes;";
+            MySqlConnection = new MySqlConnection(connString);
+            MySqlConnection.Open();
+            #endregion
+
             GenerateResults().GetAwaiter().GetResult();
+        }
+
+        static string list<T>(IEnumerable<T> enumerable) //https://stackoverflow.com/a/5695117
+        {
+            List<T> list = new List<T>(enumerable);
+            return string.Join(", ", list.ToArray());
         }
 
         static Dictionary<string,string> LoadHashesWithName(string section)
@@ -115,9 +136,39 @@ namespace HarbleNet.Updater
                     revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name });
                 }
 
+                revisionInfo.IncomingMessages.ToList().ForEach(x => insertSQL(revision, "In", x.Key, x.Value));
+                revisionInfo.OutgoingMessages.ToList().ForEach(x => insertSQL(revision, "Out", x.Key, x.Value));
+
                 string json = JsonConvert.SerializeObject(revisionInfo);
                 File.WriteAllText($"{basedir}/revisions/{revision}.json", json);
             }
+        }
+
+        static void insertSQL(string revision, string direction, int id, MessageInfo messageInfo)
+        {
+            var messageInsert = new List<MySqlParameter>();
+
+            messageInsert.Add(new MySqlParameter("revision", revision));
+            messageInsert.Add(new MySqlParameter("id", id));
+            messageInsert.Add(new MySqlParameter("direction", direction));
+            messageInsert.Add(new MySqlParameter("hash", messageInfo.Hash));
+            messageInsert.Add(new MySqlParameter("Structure", messageInfo.Structure));
+            messageInsert.Add(new MySqlParameter("ClassName", messageInfo.ClassName));
+            messageInsert.Add(new MySqlParameter("ClassNamespace", messageInfo.ClassNamespace));
+
+            if (direction == "In")
+            {
+                messageInsert.Add(new MySqlParameter("ParserName", messageInfo.ParserName));
+                messageInsert.Add(new MySqlParameter("ParserNamespace", messageInfo.ParserNamespace));
+            }
+
+            #region Insert SQL
+            var InsertCommand = new MySqlCommand(
+                $"INSERT INTO `messages` ({list(messageInsert.Select(x => x.ParameterName).ToList())}) VALUES ({list(messageInsert.Select(x => "@" + x.ParameterName).ToList())})",
+                MySqlConnection);
+            messageInsert.ForEach(x => InsertCommand.Parameters.AddWithValue("@" + x.ParameterName, x.Value)); //Insert values from list
+            InsertCommand.ExecuteNonQuery();
+            #endregion
         }
 
         static async Task<string[]> GetHashesAsync()
