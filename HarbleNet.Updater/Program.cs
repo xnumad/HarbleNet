@@ -54,6 +54,8 @@ namespace HarbleNet.Updater
             bool isInSection = false;
             foreach (var line in hashConfig)
             {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
                 if (line.StartsWith("[") && line.EndsWith("]"))
                 {
                     isInSection = (line == ("[" + section + "]"));
