@@ -102,7 +102,7 @@ namespace HarbleNet.Updater
                     if (incomingHashesWithNames.ContainsKey(message.Hash))
                         name = incomingHashesWithNames[message.Hash];
 
-                    revisionInfo.IncomingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name, ParserName = message.ParserName, ParserNamespace = message.Parser.QName.Namespace.Name });
+                    revisionInfo.IncomingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name, References = message.References.Count, ParserName = message.ParserName, ParserNamespace = message.Parser.QName.Namespace.Name });
                 }
 
                 foreach (var message in game.Out)
@@ -111,7 +111,7 @@ namespace HarbleNet.Updater
                     if (outgoingHashesWithNames.ContainsKey(message.Hash))
                         name = outgoingHashesWithNames[message.Hash];
 
-                    revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name });
+                    revisionInfo.OutgoingMessages.Add(message.Id, new MessageInfo() { Hash = message.Hash, Name = name, Structure = message.Structure, ClassName = message.ClassName, ClassNamespace = message.Class.QName.Namespace.Name, References = message.References.Count });
                 }
 
                 revisionInfo.IncomingMessages.ToList().ForEach(x => insertSQL(game.Revision, "In", x.Key, x.Value));
@@ -133,6 +133,7 @@ namespace HarbleNet.Updater
             messageInsert.Add(new MySqlParameter("Structure", messageInfo.Structure));
             messageInsert.Add(new MySqlParameter("ClassName", messageInfo.ClassName));
             messageInsert.Add(new MySqlParameter("ClassNamespace", messageInfo.ClassNamespace));
+            messageInsert.Add(new MySqlParameter("References", messageInfo.References.ToString()));
 
             if (direction == "In")
             {
@@ -142,7 +143,7 @@ namespace HarbleNet.Updater
 
             #region Insert SQL
             var InsertCommand = new MySqlCommand(
-                $"INSERT INTO `messages` ({list(messageInsert.Select(x => x.ParameterName).ToList())}) VALUES ({list(messageInsert.Select(x => "@" + x.ParameterName).ToList())})",
+                $"INSERT INTO `messages` ({list(messageInsert.Select(x => $"`{x.ParameterName}`").ToList())}) VALUES ({list(messageInsert.Select(x => "@" + x.ParameterName).ToList())})",
                 MySqlConnection);
             messageInsert.ForEach(x => InsertCommand.Parameters.AddWithValue("@" + x.ParameterName, x.Value)); //Insert values from list
             InsertCommand.ExecuteNonQuery();

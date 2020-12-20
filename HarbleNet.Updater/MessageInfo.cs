@@ -13,5 +13,6 @@ namespace HarbleNet.Updater
         public string ClassNamespace { get; set; }
         public string ParserName { get; set; }
         public string ParserNamespace { get; set; }
+        public int References { get; set; }
     }
 }
